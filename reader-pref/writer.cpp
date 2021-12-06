@@ -22,7 +22,7 @@ int main()
         sem->wait(0);
 
         //for testing
-        std::cout << "Writing Data..." << std::endl;
+        printf("Writing Data...\0");
         std::cin.ignore();
         std::cin.ignore();
 
@@ -32,6 +32,8 @@ int main()
             dataFile << message;
             dataFile.close();
         }
+        std::cout << "\rData Written: " << message << std::endl;
+        std::cout << "=============================" << std::endl;
         sem->signal(0);
     }
     return 0;

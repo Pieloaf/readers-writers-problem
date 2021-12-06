@@ -27,16 +27,16 @@ int main()
 		sem->wait(2); // lock readTry
 		sem->wait(0); // lock rmutex
 		*readercount += 1;
+		std::cout << "Reader Count: " << *readercount << std::endl;
 		if (*readercount == 1)
 		{
 			sem->wait(3); // lock resource
-			std::cout << "Resource Locked" << std::endl;
 		}
 		sem->signal(0); // release rmutex
 		sem->signal(2); // release readTry
 
 		//for testing
-		std::cout << "Reading Data..." << std::endl;
+		printf("Reading Data...\0");
 		std::cin.ignore();
 
 		dataFile.open("./data.txt");
@@ -44,8 +44,10 @@ int main()
 		{
 			while (getline(dataFile, data))
 			{
-				std::cout << "File Data: " << data << std::endl;
+				std::cout << "\rFile Data: " << data << std::endl;
 			}
+			std::cout << "End of File Data" << std::endl;
+			std::cout << "=============================" << std::endl;
 			dataFile.close();
 		}
 
@@ -54,7 +56,6 @@ int main()
 		if (*readercount == 0)
 		{
 			sem->signal(3); // release resource
-			std::cout << "Resource Released" << std::endl;
 		}
 		sem->signal(0); // release rmutex
 	}

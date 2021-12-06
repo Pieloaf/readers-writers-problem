@@ -26,6 +26,7 @@ int main()
 		std::cin.ignore();
 		sem->wait(1);
 		*readercount += 1;
+		std::cout << "Reader Count: " << *readercount << std::endl;
 		if (*readercount == 1)
 		{
 			sem->wait(0);
@@ -33,7 +34,7 @@ int main()
 		sem->signal(1);
 
 		//for testing
-		std::cout << "Reading Data..." << std::endl;
+		printf("Reading Data...\0");
 		std::cin.ignore();
 
 		dataFile.open("./data.txt");
@@ -41,8 +42,10 @@ int main()
 		{
 			while (getline(dataFile, data))
 			{
-				std::cout << "File Data: " << data << std::endl;
+				std::cout << "\rFile Data: " << data << std::endl;
 			}
+			std::cout << "End of File Data" << std::endl;
+			std::cout << "=============================" << std::endl;
 			dataFile.close();
 		}
 

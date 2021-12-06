@@ -26,17 +26,16 @@ int main()
 		std::cin >> message;
 		sem->wait(1); // lock wmutex
 		*writercount += 1;
-		std::cout << *writercount << std::endl;
+		std::cout << "Writer Count: " << *writercount << std::endl;
 		if (*writercount == 1)
 		{
 			sem->wait(2); // lock readTry
 		}
 		sem->signal(1); // release wmutex
 		sem->wait(3);	// lock resource
-		std::cout << "Resource Locked" << std::endl;
 
 		//for testing
-		std::cout << "Writing Data..." << std::endl;
+		printf("Writing Data...\0");
 		std::cin.ignore();
 		std::cin.ignore();
 
@@ -46,6 +45,8 @@ int main()
 			dataFile << message;
 			dataFile.close();
 		}
+		std::cout << "\rData Written: " << message << std::endl;
+		std::cout << "=============================" << std::endl;
 
 		sem->signal(3); // release resource
 		sem->wait(1);	// lock wmutex
