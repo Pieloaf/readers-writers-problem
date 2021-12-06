@@ -4,7 +4,7 @@
 #include <sys/shm.h>
 #include <iostream>
 #include <fstream>
-#include "./headers/baseSem.hpp"
+#include "../headers/baseSem.hpp"
 
 #define SEMKEY 1337
 #define SHMKEY 80085
@@ -13,21 +13,24 @@ int main()
 {
     int shmid, *readcount;
     baseSem *sem = new baseSem(SEMKEY, 2);
-
-    shmid = shmget(SHMKEY, 1, 0666 | IPC_CREAT);
+    std::ifstream dataFile;
+    printf("oof\n");
+    shmid = shmget(SHMKEY, 4, 0666 | IPC_CREAT);
     readcount = (int *)shmat(shmid, 0, 0);
     *readcount = 0;
-
+    printf("rcpepe\n");
+    printf("%x\n",readcount);
     sem->wait(1);
     readcount++;
-
+    printf("%d\n",readcount);
     if (*readcount == 1)
     {
+        printf("here?\n");
         sem->wait(0);
     }
     sem->signal(1);
 
-    // read from file
+    printf("haha\n");
 
     sem->wait(1);
     readcount--;
@@ -36,6 +39,7 @@ int main()
         sem->signal(0);
     }
     sem->signal(1);
+    printf("pee\n");
 
     return 0;
 }

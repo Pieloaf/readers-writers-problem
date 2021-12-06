@@ -18,6 +18,7 @@ baseSem::~baseSem()
 
 void baseSem::wait(int sem_num)
 {
+    printf("piss\n");
     Wsembuf.sem_num = sem_num;
     semop(semid, &Wsembuf, 1);
 }

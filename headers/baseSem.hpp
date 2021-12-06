@@ -4,6 +4,7 @@
 #define BASESEM_HPP
 
 #include <sys/sem.h>
+#include <stdio.h>
 
 class baseSem
 {

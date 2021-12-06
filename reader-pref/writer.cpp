@@ -4,7 +4,7 @@
 #include <sys/shm.h>
 #include <iostream>
 #include <fstream>
-#include "./headers/baseSem.hpp"
+#include "../headers/baseSem.hpp"
 
 #define SEMKEY 1337
 #define SHMKEY 80085
@@ -12,12 +12,14 @@
 int main()
 {
     baseSem *sem = new baseSem(SEMKEY, 2);
-
+    std::ofstream data;
     sem->wait(0);
-
-    // write to file
-
+    data.open("./data.txt");
+    if (data.is_open())
+    {
+        data << "test";
+        data.close();
+    }
     sem->wait(1);
-
     return 0;
 }
