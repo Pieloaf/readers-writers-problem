@@ -6,10 +6,6 @@
 #include <fstream>
 #include "../headers/baseSem.hpp"
 
-//for testing
-#include <chrono>
-#include <thread>
-
 #define SEMKEY 1337
 #define SHMKEY 80085
 
@@ -27,7 +23,8 @@ int main()
 
         //for testing
         std::cout << "Writing Data..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+        std::cin.ignore();
+        std::cin.ignore();
 
         dataFile.open("./data.txt");
         if (dataFile.is_open())
