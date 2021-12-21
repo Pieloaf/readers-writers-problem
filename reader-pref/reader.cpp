@@ -19,7 +19,7 @@ int main()
 	struct shmid_ds shm_info; // struct to store shared mem info
 
 	// create new baseSem obj with key == semkey and sem set of 2
-	baseSem *sem = new baseSem(SEMKEY, 2);
+	baseSem sem(SEMKEY, 2);
 
 	std::ifstream dataFile; // file input stream variable
 	std::string data;		// file data string variable
@@ -52,17 +52,17 @@ int main()
 		if (cmd == 'q') // if user input is q
 			break;		// break out of loop
 
-		sem->wait(1);	   // lock sem to adjust readercount
+		sem.wait(1);	   // lock sem to adjust readercount
 		*readercount += 1; // increment readercount
 		// print readercount to terminal
 		std::cout << "Reader Count: " << *readercount << std::endl;
 		// if reader is the first reader
 		if (*readercount == 1)
 		{
-			sem->wait(0); // lock sem for file access
+			sem.wait(0); // lock sem for file access
 		}
 
-		sem->signal(1); // release sem to adjust readercount
+		sem.signal(1); // release sem to adjust readercount
 
 		// For Testing:
 		// wait for user input before carrying out CS
@@ -87,15 +87,15 @@ int main()
 			dataFile.close(); // close file input stream
 		}
 
-		sem->wait(1);	   // lock sem to adjust readercount
+		sem.wait(1);	   // lock sem to adjust readercount
 		*readercount -= 1; // decrement readercount
 		// if reader is the last reader
 		if (*readercount == 0)
 		{
 			// release sem for file access
-			sem->signal(0);
+			sem.signal(0);
 		}
-		sem->signal(1); // release sem to adjust readercount
+		sem.signal(1); // release sem to adjust readercount
 	}
 
 	shmdt((void *)readercount);			// detach shared memory
@@ -105,6 +105,5 @@ int main()
 	{
 		shmctl(shmid, IPC_RMID, NULL); // remove shared memory
 	}
-	delete sem; // delete sem obj
 	return 0;
 }

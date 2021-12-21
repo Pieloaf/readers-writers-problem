@@ -12,8 +12,8 @@
 
 /*
 	sem nums:
-		0 - adj readercount
-		1 - adj writercount
+		0 - adjust readercount
+		1 - adjust writercount
 		2 - readTry
 		3 - file access
 */
@@ -30,7 +30,7 @@ int main()
 	int shmid, *writercount;
 	struct shmid_ds shm_info;
 	// create new baseSem obj with key == semkey and sem set of 4
-	baseSem *sem = new baseSem(SEMKEY, 4);
+	baseSem sem(SEMKEY, 4);
 
 	std::ofstream dataFile; // file output stream variable
 	std::string message;	// file data string variable
@@ -52,7 +52,7 @@ int main()
 		if (message == "q")
 			break;
 
-		sem->wait(WMUTEX); // lock sem to adjust writercount
+		sem.wait(WMUTEX);  // lock sem to adjust writercount
 		*writercount += 1; // increment writercount
 		// print writercount to terminal
 		std::cout << "Writer Count: " << *writercount << std::endl;
@@ -61,11 +61,11 @@ int main()
 		if (*writercount == 1)
 		{
 			// lock sem to prevent new readers from inc readercount
-			sem->wait(READTRY);
+			sem.wait(READTRY);
 		}
 
-		sem->signal(WMUTEX);   // release sem to adjust writercount
-		sem->wait(FILEACCESS); // lock sem for file access
+		sem.signal(WMUTEX);	  // release sem to adjust writercount
+		sem.wait(FILEACCESS); // lock sem for file access
 
 		// For Testing:
 		// wait for user input before carrying out CS
@@ -85,16 +85,16 @@ int main()
 		std::cout << "\rData Written: " << message << std::endl;
 		std::cout << "=============================" << std::endl;
 
-		sem->signal(FILEACCESS); // release sem for file access
-		sem->wait(WMUTEX);		 // lock sem to adjust writercount
-		*writercount -= 1;		 // decrement writercount
+		sem.signal(FILEACCESS); // release sem for file access
+		sem.wait(WMUTEX);		// lock sem to adjust writercount
+		*writercount -= 1;		// decrement writercount
 		// if writer is the last writer
 		if (*writercount == 0)
 		{
 			// release sem to allow new readers inc readercount
-			sem->signal(READTRY);
+			sem.signal(READTRY);
 		}
-		sem->signal(WMUTEX); // release sem to adjust writercount
+		sem.signal(WMUTEX); // release sem to adjust writercount
 	}
 	shmdt((void *)writercount);			// detach shared memory
 	shmctl(shmid, SHM_STAT, &shm_info); // get details of shared memory
@@ -103,6 +103,5 @@ int main()
 	{
 		shmctl(shmid, IPC_RMID, NULL); // remove shared memory
 	}
-	delete sem; // delete sem obj
 	return 0;
 }

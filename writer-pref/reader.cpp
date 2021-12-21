@@ -12,8 +12,8 @@
 
 /*
 	sem nums:
-		0 - adj readercount
-		1 - adj writercount
+		0 - adjust readercount
+		1 - adjust writercount
 		2 - readTry
 		3 - file access
 */
@@ -32,7 +32,7 @@ int main()
 	char cmd; // char to store command to quit
 
 	// create new baseSem obj with key == semkey and sem set of 4
-	baseSem *sem = new baseSem(SEMKEY, 4);
+	baseSem sem(SEMKEY, 4);
 
 	std::ifstream dataFile; // file input stream variable
 	std::string data;		// file data string variable
@@ -53,19 +53,19 @@ int main()
 		if (cmd == 'q') // if user input is q
 			break;		// break out of loop
 
-		sem->wait(READTRY); // lock readTry
-		sem->wait(RMUTEX);	// lock sem to adjust readercount
-		*readercount += 1;	// increment the readercount
+		sem.wait(READTRY); // lock readTry
+		sem.wait(RMUTEX);  // lock sem to adjust readercount
+		*readercount += 1; // increment the readercount
 		// print the readercount to the terminal
 		std::cout << "Reader Count: " << *readercount << std::endl;
 
 		// if the reader is the first reader
 		if (*readercount == 1)
 		{
-			sem->wait(FILEACCESS); // lock the sem for file access
+			sem.wait(FILEACCESS); // lock the sem for file access
 		}
-		sem->signal(RMUTEX);  // release sem to adjust readercount
-		sem->signal(READTRY); // release readTry
+		sem.signal(RMUTEX);	 // release sem to adjust readercount
+		sem.signal(READTRY); // release readTry
 
 		// For Testing:
 		// wait for user input before carrying out CS
@@ -90,15 +90,15 @@ int main()
 			dataFile.close(); // close file input stream
 		}
 
-		sem->wait(RMUTEX); // lock sem to adjust readercount
+		sem.wait(RMUTEX);  // lock sem to adjust readercount
 		*readercount -= 1; // decrement readercount
 		// if the reader is the last reader
 		if (*readercount == 0)
 		{
 			// release the sem for file access
-			sem->signal(FILEACCESS);
+			sem.signal(FILEACCESS);
 		}
-		sem->signal(RMUTEX); // release sem to adjust readercount
+		sem.signal(RMUTEX); // release sem to adjust readercount
 	}
 
 	shmdt((void *)readercount);			// detach shared memory
@@ -108,6 +108,5 @@ int main()
 	{
 		shmctl(shmid, IPC_RMID, NULL); // remove shared memory
 	}
-	delete sem; // delete sem obj
 	return 0;
 }

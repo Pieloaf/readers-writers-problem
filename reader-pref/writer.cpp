@@ -13,7 +13,7 @@
 int main()
 {
     // create new baseSem obj with key == semkey and sem set of 2
-    baseSem *sem = new baseSem(SEMKEY, 2);
+    baseSem sem(SEMKEY, 2);
     std::ofstream dataFile; // file output stream variable
     std::string message;    // file data string variable
 
@@ -28,7 +28,7 @@ int main()
         if (message == "q")
             break;
 
-        sem->wait(0); // lock sem for file access
+        sem.wait(0); // lock sem for file access
 
         // For Testing:
         // wait for user input before carrying out CS
@@ -47,8 +47,7 @@ int main()
         // print message to signify end of writing data
         std::cout << "\rData Written: " << message << std::endl;
         std::cout << "=============================" << std::endl;
-        sem->signal(0); // release sem for file access
+        sem.signal(0); // release sem for file access
     }
-    delete sem; // delete sem obj
     return 0;
 }
