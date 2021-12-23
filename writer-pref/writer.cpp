@@ -22,6 +22,7 @@
 #define WMUTEX 1
 #define READTRY 2
 #define FILEACCESS 3
+#define MEMMGMT 4
 
 int main()
 {
@@ -30,16 +31,29 @@ int main()
 	int shmid, *writercount;
 	struct shmid_ds shm_info;
 	// create new baseSem obj with key == semkey and sem set of 4
-	baseSem sem(SEMKEY, 4);
+	baseSem sem(SEMKEY, 5);
 
 	std::ofstream dataFile; // file output stream variable
 	std::string message;	// file data string variable
 
+	sem.wait(MEMMGMT); // lock semaphore for shared memory management
 	// initialise shared memory of 4 bytes with with key == shmkey
-	shmid = shmget(SHMKEY, 4, 0666 | IPC_CREAT);
-	// set writercount pointer to first address in shared memory
-	writercount = (int *)shmat(shmid, 0, 0);
-	*writercount = 0; // initialise writercount to 0
+	shmid = shmget(SHMKEY, 4, 0666 | IPC_CREAT | IPC_EXCL);
+	// if the share memory has already been created,
+	if (shmid == -1)
+	{
+		// get the block of shared memory with key == shmkey
+		shmid = shmget(SHMKEY, 4, 0666);
+		// set the writercount pointer to the shared memory
+		writercount = (int *)shmat(shmid, NULL, 0);
+	}
+	else
+	{
+		// set writercount pointer to first address in shared memory
+		writercount = (int *)shmat(shmid, NULL, 0);
+		*writercount = 0; // initialise writercount to 0
+	}
+	sem.signal(MEMMGMT); // signal semaphore for shared memory management
 
 	while (1)
 	{
@@ -96,6 +110,9 @@ int main()
 		}
 		sem.signal(WMUTEX); // release sem to adjust writercount
 	}
+
+	sem.wait(MEMMGMT); // lock semaphore for shared memory management
+
 	shmdt((void *)writercount);			// detach shared memory
 	shmctl(shmid, SHM_STAT, &shm_info); // get details of shared memory
 
@@ -103,5 +120,6 @@ int main()
 	{
 		shmctl(shmid, IPC_RMID, NULL); // remove shared memory
 	}
+	sem.signal(MEMMGMT); // signal semaphore for shared memory management
 	return 0;
 }

@@ -19,11 +19,12 @@ int main()
 	struct shmid_ds shm_info; // struct to store shared mem info
 
 	// create new baseSem obj with key == semkey and sem set of 2
-	baseSem sem(SEMKEY, 2);
+	baseSem sem(SEMKEY, 3);
 
 	std::ifstream dataFile; // file input stream variable
 	std::string data;		// file data string variable
 
+	sem.wait(2); // lock semaphore for shared memory management
 	// initialise shared memory of 4 bytes with with key == shmkey
 	// excl ensures that the share memory has not been created before
 	shmid = shmget(SHMKEY, 4, 0666 | IPC_CREAT | IPC_EXCL);
@@ -41,6 +42,7 @@ int main()
 		readercount = (int *)shmat(shmid, NULL, 0);
 		*readercount = 0; // initialise readercount to 0
 	}
+	sem.signal(2); // signal semaphore for shared memory management
 
 	while (1)
 	{
@@ -61,7 +63,6 @@ int main()
 		{
 			sem.wait(0); // lock sem for file access
 		}
-
 		sem.signal(1); // release sem to adjust readercount
 
 		// For Testing:
@@ -98,6 +99,8 @@ int main()
 		sem.signal(1); // release sem to adjust readercount
 	}
 
+	sem.wait(2); // lock semaphore for shared memory management
+
 	shmdt((void *)readercount);			// detach shared memory
 	shmctl(shmid, SHM_STAT, &shm_info); // get details of shared memory
 
@@ -105,5 +108,6 @@ int main()
 	{
 		shmctl(shmid, IPC_RMID, NULL); // remove shared memory
 	}
+	sem.signal(2); // signal semaphore for shared memory management
 	return 0;
 }
